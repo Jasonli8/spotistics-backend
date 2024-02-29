@@ -3,8 +3,8 @@ const router = express.Router()
 
 const authenticator = require("@utils/service/auth")
 
-router.post("/login", authenticator.login)
-router.post("/callback", authenticator.loginCallback)
-router.post("/token-refresh", authenticator.tokenRefresh)
+router.get("/login", authenticator.login)
+router.get("/callback", authenticator.loginCallback)
+router.get("/refresh-token", authenticator.refreshToken)
 
 module.exports = router

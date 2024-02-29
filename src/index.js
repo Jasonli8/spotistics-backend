@@ -4,6 +4,9 @@ const express = require('express')
 const server = express()
 const port = 3000
 
+const cors = require('cors')
+const cookieParser = require('cookie-parser')
+
 ///////////////////////////////////////////////////////////// ROUTER IMPORTS
 
 const authRouter = require("@router/auth/authRouter")

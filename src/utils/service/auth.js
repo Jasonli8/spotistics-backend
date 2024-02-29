@@ -8,6 +8,11 @@ var cookieParser = require('cookie-parser');
 var client_id = 'yourClientIDGoesHere'; // your app clientId TODO when spotify dev is up again
 var client_secret = 'YourSecretIDGoesHere'; // Your secret TODO when spotify dev is up again
 var redirect_uri = 'http://localhost:3000/auth/callback'; // Your redirect uri TODO add to spotify dev allow list
+var scope = [
+	// may add playlist and other scopes later: https://developer.spotify.com/documentation/web-api/concepts/scopes
+	"user-top-read", 			 // get Top Played
+	"user-read-recently-played", // get Recently Played
+]
 
 const stateKey = "spotistics-auth-state"
 
@@ -18,36 +23,42 @@ const generateRandomString = (length) => {
     .slice(0, length);
   }
 
+const generateErrorResponse = () => {
+	return {
+		message: "Failed to claim new token",
+		code: 101
+	}
+}
+
 const login = async (req, res, next) => {
-    // Regular useer login.
+    // User login and authorization
+	// Checking if user is authorized done by Spotify's API
+
     var scope = 'user-read-private user-read-email'; // TODO update with https://developer.spotify.com/documentation/web-api/concepts/scopes
     var state = generateRandomString(16);
     res.cookie(stateKey, state);
   
-    // your application requests authorization
     res.redirect('https://accounts.spotify.com/authorize?' +
       querystring.stringify({
         response_type: 'code',
         client_id: client_id,
-        scope: scope,
+        scope: scope.join(" "),
         redirect_uri: redirect_uri,
         state: state
     }));
 }
 
-const loginCallback = (req, res, next) => {
-    // your application requests refresh and access tokens
-    // after checking the state parameter
+const loginCallback = async (req, res, next) => {
+    // After login redirects, user logs in and authorizes through Spotify's OAuth interface
+	// After user completes OAuth step, redirects here to continue
+	// If authorization successful, redeems given code for session token and a refresh token
 
     var code = req.query.code || null;
     var state = req.query.state || null;
     var storedState = req.cookies ? req.cookies[stateKey] : null;
 
     if (state === null || state !== storedState) {
-        res.redirect('/#' +
-        querystring.stringify({
-            error: 'state_mismatch'
-        }));
+        res.status(500).send({message: "Client-server state mismatch", code: 102})
     } else {
         res.clearCookie(stateKey);
         var authOptions = {
@@ -70,34 +81,25 @@ const loginCallback = (req, res, next) => {
             var access_token = body.access_token,
                 refresh_token = body.refresh_token;
 
-            var options = {
-            url: 'https://api.spotify.com/v1/me',
-            headers: { 'Authorization': 'Bearer ' + access_token },
-            json: true
-            };
+			res.status(200).send({access_token, refresh_token})
 
-            // use the access token to access the Spotify Web API
-            request.get(options, function(error, response, body) {
-            console.log(body);
-            });
-
-            // we can also pass the token to the browser to make requests from there
-            res.redirect('/#' +
-            querystring.stringify({
-                access_token: access_token,
-                refresh_token: refresh_token
-            }));
+			// Example usage in API calls
+            // var options = {
+            // url: 'https://api.spotify.com/v1/me',
+            // headers: { 'Authorization': 'Bearer ' + access_token },
+            // json: true
+            // };
+            // request.get(options, function(error, response, body) {
+            // console.log(body);
+            // });
         } else {
-            res.redirect('/#' +
-            querystring.stringify({
-                error: 'invalid_token'
-            }));
+			res.status(500).send(generateErrorResponse())
         }
         });
     }
 }
 
-const refreshToken = (req, res, next) => {
+const refreshToken = async (req, res, next) => {
     var refresh_token = req.query.refresh_token;
     var authOptions = {
         url: 'https://accounts.spotify.com/api/token',

@@ -5,8 +5,8 @@ var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 
 // reference: https://developer.spotify.com/documentation/web-api/tutorials/code-flow
-var client_id = 'yourClientIDGoesHere'; // your app clientId TODO when spotify dev is up again
-var client_secret = 'YourSecretIDGoesHere'; // Your secret TODO when spotify dev is up again
+var client_id = 'dcb7c8ef25dd48c2b832fd73164d9f4c';
+var client_secret = '33a2d7d25dd04ef5a2c16544d850830d';
 var redirect_uri = 'http://localhost:3000/auth/callback'; // Your redirect uri TODO add to spotify dev allow list
 var scope = [
 	// may add playlist and other scopes later: https://developer.spotify.com/documentation/web-api/concepts/scopes
@@ -34,7 +34,6 @@ const login = async (req, res, next) => {
     // User login and authorization
 	// Checking if user is authorized done by Spotify's API
 
-    var scope = 'user-read-private user-read-email'; // TODO update with https://developer.spotify.com/documentation/web-api/concepts/scopes
     var state = generateRandomString(16);
     res.cookie(stateKey, state);
   
@@ -118,11 +117,13 @@ const refreshToken = async (req, res, next) => {
         if (!error && response.statusCode === 200) {
         var access_token = body.access_token,
             refresh_token = body.refresh_token;
-        res.send({
+        res.status(200).send({
             'access_token': access_token,
             'refresh_token': refresh_token
         });
-        }
+        } else {
+			res.status(500).send(generateErrorResponse())
+		}
     });
 }
 

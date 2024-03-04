@@ -4,13 +4,21 @@ const express = require('express')
 const server = express()
 const port = 3000
 
+const cors = require('cors')
+const cookieParser = require('cookie-parser')
+
 ///////////////////////////////////////////////////////////// ROUTER IMPORTS
 
 const authRouter = require("@router/auth/authRouter")
+const testRouter = require("@router/test/testRouter")
 
 ///////////////////////////////////////////////////////////// ROUTING
 
+server.use(cookieParser())
+      .use(cors());
+
 server.use("/auth", authRouter)
+server.use("/test", testRouter)
 
 server.get('/', (req, res) => { // debug
   res.send('Hello World!')

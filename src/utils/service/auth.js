@@ -1,13 +1,11 @@
 var request = require('request');
 var crypto = require('crypto');
-var cors = require('cors');
 var querystring = require('querystring');
-var cookieParser = require('cookie-parser');
 
 // reference: https://developer.spotify.com/documentation/web-api/tutorials/code-flow
-var client_id = 'dcb7c8ef25dd48c2b832fd73164d9f4c';
-var client_secret = '33a2d7d25dd04ef5a2c16544d850830d';
-var redirect_uri = 'http://localhost:3000/auth/callback'; // Your redirect uri TODO add to spotify dev allow list
+var client_id = '99c4249a81b040bfac0b3146288a64b7';
+var client_secret = '2c0eb3dc48b04c6e9dabb9ef04df9866';
+var redirect_uri = 'http://localhost:3000/auth/loginCallback';
 var scope = [
 	// may add playlist and other scopes later: https://developer.spotify.com/documentation/web-api/concepts/scopes
 	"user-top-read", 			 // get Top Played
@@ -15,6 +13,7 @@ var scope = [
 ]
 
 const stateKey = "spotistics-auth-state"
+const callbackRedirectKey = "spotistics-post-auth-redirect"
 
 const generateRandomString = (length) => {
     return crypto
@@ -31,36 +30,46 @@ const generateErrorResponse = () => {
 }
 
 const login = async (req, res, next) => {
-    // User login and authorization
-	// Checking if user is authorized done by Spotify's API
-
+    // Return URL for app to direct user to Spotify's authorization page
     var state = generateRandomString(16);
+    res.clearCookie(callbackRedirectKey);
+    res.clearCookie(stateKey);
+    res.cookie(callbackRedirectKey, req.query.redirect);
     res.cookie(stateKey, state);
-  
-    res.redirect('https://accounts.spotify.com/authorize?' +
-      querystring.stringify({
-        response_type: 'code',
-        client_id: client_id,
-        scope: scope.join(" "),
-        redirect_uri: redirect_uri,
-        state: state
-    }));
+
+    res.redirect(
+        'https://accounts.spotify.com/authorize?' +
+            querystring.stringify({
+                response_type: 'code',
+                client_id: client_id,
+                scope: scope.join(" "),
+                redirect_uri: redirect_uri,
+                state: state,
+                show_dialog: true // debugging
+            })
+    )
 }
 
 const loginCallback = async (req, res, next) => {
-    // After login redirects, user logs in and authorizes through Spotify's OAuth interface
-	// After user completes OAuth step, redirects here to continue
-	// If authorization successful, redeems given code for session token and a refresh token
-
+    // Universal landing page for after users finish authorization
     var code = req.query.code || null;
     var state = req.query.state || null;
     var storedState = req.cookies ? req.cookies[stateKey] : null;
+    var storedRedirect = req.cookies ? req.cookies[callbackRedirectKey] : "http://localhost:3001/?" // TODO update default path
+    console.log(req.cookies)
 
     if (state === null || state !== storedState) {
-        res.status(500).send({message: "Client-server state mismatch", code: 102})
+        res.redirect(storedRedirect + querystring.stringify({
+            error: 102 // Client-server state mismatch
+        }))
     } else {
-        res.clearCookie(stateKey);
-        var authOptions = {
+        res.redirect(storedRedirect + querystring.stringify({ code }))
+    }
+}
+
+const redeemCode = async (req, res, next) => {
+    var code = req.query.code || null;
+    var authOptions = {
         url: 'https://accounts.spotify.com/api/token',
         form: {
             code: code,
@@ -94,8 +103,7 @@ const loginCallback = async (req, res, next) => {
         } else {
 			res.status(500).send(generateErrorResponse())
         }
-        });
-    }
+    });
 }
 
 const refreshToken = async (req, res, next) => {
@@ -130,5 +138,6 @@ const refreshToken = async (req, res, next) => {
 module.exports = {
     login,
     loginCallback,
+    redeemCode,
     refreshToken
 }

@@ -81,9 +81,9 @@ const redeemCode = async (req, res, next) => {
             Authorization: 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64'))
         },
         json: true
-        };
+    };
 
-        request.post(authOptions, function(error, response, body) {
+    request.post(authOptions, function(error, response, body) {
         if (!error && response.statusCode === 200) {
 
             var access_token = body.access_token,

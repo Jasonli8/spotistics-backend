@@ -10,15 +10,26 @@ const cookieParser = require('cookie-parser')
 ///////////////////////////////////////////////////////////// ROUTER IMPORTS
 
 const authRouter = require("@router/auth/authRouter")
+const spotRouter = require("@router/spotify/spotifyRouter")
 const testRouter = require("@router/test/testRouter")
 
 ///////////////////////////////////////////////////////////// ROUTING
+
+server.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
+  next();
+});
 
 server.use(cookieParser())
       .use(cors());
 
 server.use("/auth", authRouter)
-server.use("/test", testRouter)
+server.use("/spotify", spotRouter)
 
 server.get('/', (req, res) => { // debug
   res.send('Hello World!')

@@ -61,7 +61,7 @@ const getUserProfile = async (req, res, next) => {
         },
     };
 
-	request.get(options, function(error, response, body) => {
+	request.get(options, function(error, response, body) {
 		if (!error && response.status == 200) {
 			res.status.200.json(body)
 		} else {
@@ -78,7 +78,7 @@ const getPopularTracks = async (req, res, next) => {
         },
     };
 
-	request.get(options, function(error, response, body) => {
+	request.get(options, function(error, response, body) {
 		if (!error && response.status == 200) {
 			var recommendations = JSON.parse(body).tracks.map(track => {
                 return {
@@ -124,7 +124,7 @@ const getPopularTracks = async (req, res, next) => {
 }
 
 module.exports = {
-    getListeningHistory
-	getUserProfile
+    getListeningHistory,
+	getUserProfile,
 	getPopularTracks
 }

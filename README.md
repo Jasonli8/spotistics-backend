@@ -80,3 +80,17 @@ For getting current user's listening history. Up to 50 of the most recent items.
     ],
     items: <Number> // how many tracks in the returned list
 }
+
+# Error codes
+
+## `100` Series
+From `/auth` endpoints
+- `101` Failure to get token, either because connection to Spotify failed, Spotify internal error, or necessary tokens/code being invalid
+- `102` Client-server state mismatch. State in cookies does not match state in query during authentication callback. This may be indicative of an external attack and is thus discarded for security.
+
+## `200` Series
+From `/spotify` endpoints. Each of these are just default failure codes unique to each endpoint. For specific details on error, refer to error attribute which contains main body of errored response.
+- `201` Failed to get history
+- `202` Failed to get user profile
+- `203` Failed to get recommendations
+

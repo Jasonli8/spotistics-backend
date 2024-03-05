@@ -63,7 +63,7 @@ const getUserProfile = async (req, res, next) => {
 
 	request.get(options, function(error, response, body) {
 		if (!error && response.status == 200) {
-			res.status.200.json(body)
+			res.status(200).json(body)
 		} else {
 			res.status(500).send({message: "Couldn't get user profile", code: 202, error: body})
 		}

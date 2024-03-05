@@ -63,14 +63,14 @@ const getUserProfile = async (req, res, next) => {
 
 	request.get(options, function(error, response, body) {
 		if (!error && response.status == 200) {
-			res.status.200.json(body)
+			res.status(200).json(body)
 		} else {
 			res.status(500).send({message: "Couldn't get user profile", code: 202, error: body})
 		}
 	})
 }
 
-const getPopularTracks = async (req, res, next) => {
+const getRecommendedTracks = async (req, res, next) => {
 	var options = {
         url: 'https://api.spotify.com/v1/recommendations?seed_tracks=0c6xIDDpzE81m2q797ordA&limit=10',
         headers: {
@@ -126,5 +126,5 @@ const getPopularTracks = async (req, res, next) => {
 module.exports = {
     getListeningHistory,
 	getUserProfile,
-	getPopularTracks
+	getRecommendedTracks
 }

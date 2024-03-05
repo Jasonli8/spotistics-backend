@@ -70,7 +70,7 @@ const getUserProfile = async (req, res, next) => {
 	})
 }
 
-const getPopularTracks = async (req, res, next) => {
+const getRecommendedTracks = async (req, res, next) => {
 	var options = {
         url: 'https://api.spotify.com/v1/recommendations?seed_tracks=0c6xIDDpzE81m2q797ordA&limit=10',
         headers: {
@@ -126,5 +126,5 @@ const getPopularTracks = async (req, res, next) => {
 module.exports = {
     getListeningHistory,
 	getUserProfile,
-	getPopularTracks
+	getRecommendedTracks
 }

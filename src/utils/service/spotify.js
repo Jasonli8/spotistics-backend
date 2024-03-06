@@ -62,10 +62,10 @@ const getUserProfile = async (req, res, next) => {
     };
 
 	request.get(options, function(error, response, body) {
-		if (!error && response.status == 200) {
+		if (!error && response.statusCode == 200) {
 			res.status(200).json(body)
 		} else {
-			res.status(500).send({message: "Couldn't get user profile", code: 202, error: body})
+			res.status(500).send({message: "Couldn't get user profile", code: 202, error: error})
 		}
 	})
 }
@@ -79,7 +79,7 @@ const getRecommendedTracks = async (req, res, next) => {
     };
 
 	request.get(options, function(error, response, body) {
-		if (!error && response.status == 200) {
+		if (!error && response.statusCode == 200) {
 			var recommendations = JSON.parse(body).tracks.map(track => {
                 return {
                     album: {
@@ -118,7 +118,7 @@ const getRecommendedTracks = async (req, res, next) => {
             res.status(200).send({ recommendations, items: recommendations.length })
 
 		} else {
-			res.status(500).send({message: "Couldn't get recommendations", code: 203, error: body})
+			res.status(500).send({message: "Couldn't get recommendations", code: 203, error: error})
 		}
 	})
 }

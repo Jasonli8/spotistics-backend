@@ -1,4 +1,5 @@
 const request = require("request")
+const spotifyParser = require("@/helper/spotifyParser")
 
 const getListeningHistory = async (req, res, next) => {
     var options = {
@@ -13,36 +14,7 @@ const getListeningHistory = async (req, res, next) => {
             var history = JSON.parse(body).items.map(target => {
                 return {
                     played_at: target.played_at,
-                    album: {
-                        id: target.track.album.id,
-                        name: target.track.album.name,
-                        images: target.track.album.images,
-                        release_date: target.track.album.release_date_precision,
-                        urls: target.track.album.external_urls,
-                        artists: target.track.album.artists.map((artist) => {
-                            return {
-                                id: artist.id,
-                                name: artist.name,
-                                urls: artist.external_urls
-                            }
-                        })
-                    },
-                    track: {
-                        duration: target.track.duration_ms,
-                        explicit: target.track.explicit,
-                        urls: target.track.external_urls,
-                        id: target.track.id,
-                        name: target.track.name,
-                        spotify_popularity: target.track.popularity,
-                        is_local_file: target.track.is_local,
-                        artists: target.track.artists.map((artist) => {
-                            return {
-                                id: artist.id,
-                                name: artist.name,
-                                urls: artist.external_urls
-                            }
-                        })
-                    }
+                    ...itemParser(target.track)
                 }
             })
 
@@ -80,40 +52,7 @@ const getRecommendedTracks = async (req, res, next) => {
 
 	request.get(options, function(error, response, body) {
 		if (!error && response.statusCode == 200) {
-			var recommendations = JSON.parse(body).tracks.map(track => {
-                return {
-                    album: {
-                        id: track.album.id,
-                        name: track.album.name,
-                        images: track.album.images,
-                        release_date: track.album.release_date_precision,
-                        urls: track.album.external_urls,
-                        artists: track.album.artists.map((artist) => {
-                            return {
-                                id: artist.id,
-                                name: artist.name,
-                                urls: artist.external_urls
-                            }
-                        })
-                    },
-                    track: {
-                        duration: track.duration_ms,
-                        explicit: track.explicit,
-                        urls: track.external_urls,
-                        id: track.id,
-                        name: track.name,
-                        spotify_popularity: track.popularity,
-                        is_local_file: track.is_local,
-                        artists: track.artists.map((artist) => {
-                            return {
-                                id: artist.id,
-                                name: artist.name,
-                                urls: artist.external_urls
-                            }
-                        })
-                    }
-                }
-            })
+			var recommendations = JSON.parse(body).tracks.map(track => spotifyParser.itemParser(track))
 
             res.status(200).send({ recommendations, items: recommendations.length })
 
@@ -123,8 +62,78 @@ const getRecommendedTracks = async (req, res, next) => {
 	})
 }
 
+const searchSpotify = async (req, res, next) => {
+    var {
+        album,
+        artist,
+        track,
+        yearStart,
+        yearEnd,
+        genre,
+        isUnpopular,
+        isNew,
+        irsc,
+        type,
+        limit,
+        offset
+    } = req.body
+    var query = ""
+    if (album) {
+        query = query + ` album:${album}`
+    }
+    if (artist) {
+        query = query + ` artist:${artist}`
+    }
+    if (track) {
+        query = query + ` track:${track}`
+    }
+    if (yearStart) {
+        if (yearStart == yearEnd) {
+            query = query + ` year:${yearStart}`
+        } else {
+            query = query + ` year:${yearStart}-${yearEnd}`
+        }
+    }
+    if (genre) {
+        query = query + `g enre:${genre}`
+    }
+    if (isUnpopular) {
+        query = query + ` tag:hipster`
+    }
+    if (isNew) {
+        query = query + ` tag:neq`
+    }
+    if (irsc) {
+        query = query + ` irsc:${irsc}`
+    }
+
+    var options = {
+        url: 'https://api.spotify.com/v1/search?' + querystring.stringify({
+            limit,
+            offset,
+            query,
+            type: type.join(',')
+        }),
+        headers: {
+            Authorization: 'Bearer ' + (req.cookies && req.cookies["access-token"] ? req.cookies["access-token"] : "")
+        },
+    };
+
+    request.get(options, (error, response, body) => {
+        if (!error && response.statusCode == 200) {
+			var results = JSON.parse(body).items.map(item => spotifyParser(item))
+
+            res.status(200).send({ results, items: results.length })
+
+		} else {
+			res.status(500).send({message: "Couldn't get search results", code: 204, error: error})
+		}
+    })
+}
+
 module.exports = {
     getListeningHistory,
 	getUserProfile,
-	getRecommendedTracks
+	getRecommendedTracks,
+    searchSpotify
 }

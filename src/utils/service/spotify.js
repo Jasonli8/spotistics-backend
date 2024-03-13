@@ -6,7 +6,7 @@ const getListeningHistory = async (req, res, next) => {
     var options = {
         url: 'https://api.spotify.com/v1/me/player/recently-played?limit=50',
         headers: {
-            Authorization: 'Bearer ' + (req.cookies && req.cookies["access-token"] ? req.cookies["access-token"] : "")
+            Authorization: 'Bearer ' + (req.cookies && req.cookies["access_token"] ? req.cookies["access_token"] : "")
         },
     };
 
@@ -30,7 +30,7 @@ const getUserProfile = async (req, res, next) => {
     var options = {
         url: 'https://api.spotify.com/v1/me',
         headers: {
-            Authorization: 'Bearer ' + (req.cookies && req.cookies["access-token"] ? req.cookies["access-token"] : "")
+            Authorization: 'Bearer ' + (req.cookies && req.cookies["access_token"] ? req.cookies["access_token"] : "")
         },
     };
 
@@ -47,7 +47,7 @@ const getRecommendedTracks = async (req, res, next) => {
 	var options = {
         url: 'https://api.spotify.com/v1/recommendations?seed_tracks=0c6xIDDpzE81m2q797ordA&limit=10',
         headers: {
-            Authorization: 'Bearer ' + (req.cookies && req.cookies["access-token"] ? req.cookies["access-token"] : "")
+            Authorization: 'Bearer ' + (req.cookies && req.cookies["access_token"] ? req.cookies["access_token"] : "")
         },
     };
 
@@ -116,7 +116,7 @@ const searchSpotify = async (req, res, next) => {
             type: type.join(',')
         }),
         headers: {
-            Authorization: 'Bearer ' + (req.cookies && req.cookies["access-token"] ? req.cookies["access-token"] : "")
+            Authorization: 'Bearer ' + (req.cookies && req.cookies["access_token"] ? req.cookies["access_token"] : "")
         },
     };
 
@@ -130,9 +130,8 @@ const searchSpotify = async (req, res, next) => {
             }
             res.status(200).send(results)
         } else {
-            console.log(response.statusCode)
-            console.log(body)
-			res.status(500).send({message: "Couldn't get search results", code: 204, error: error})
+            const parsedData = JSON.parse(body)
+			res.status(500).send({message: "Couldn't get search results", code: 204, error: parsedData.error})
 		}
     })
 }

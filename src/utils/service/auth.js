@@ -107,29 +107,32 @@ const redeemCode = async (req, res, next) => {
 }
 
 const refreshToken = async (req, res, next) => {
-    var refresh_token = req.query.refresh_token;
+    var refresh_token = req.cookies.refresh_token;
     var authOptions = {
         url: 'https://accounts.spotify.com/api/token',
         headers: { 
         'content-type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64')) 
+        'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64'))
+
         },
         form: {
-        grant_type: 'refresh_token',
-        refresh_token: refresh_token
+            grant_type: 'refresh_token',
+            refresh_token: refresh_token
         },
         json: true
     };
 
     request.post(authOptions, function(error, response, body) {
         if (!error && response.statusCode === 200) {
-        var access_token = body.access_token,
-            refresh_token = body.refresh_token;
-        res.status(200).send({
-            'access_token': access_token,
-            'refresh_token': refresh_token
-        });
+            var access_token = body.access_token,
+                refresh_token = body.refresh_token;
+            res.status(200).send({
+                'access_token': access_token,
+                'refresh_token': refresh_token
+            });
         } else {
+            console.log(error)
+            console.log(response.body)
 			res.status(500).send(generateErrorResponse())
 		}
     });

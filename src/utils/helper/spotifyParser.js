@@ -25,7 +25,7 @@ const artistParser = (artist) => {
         name: artist.name,
         external_urls: artist.external_urls,
         images: artist.images,
-        followers: artist.followers.total,
+        followers: artist.followers ? artist.followers.total : null,
         genres: artist.genres,
         popularity: artist.popularity
     }
@@ -53,7 +53,7 @@ const playlistParser = (playlist) => {
         description: playlist.description,
         external_urls: playlist.external_urls,
         images: playlist.images,
-        owner: userParser(playlist.owner),
+        owner: playlist.owner ? userParser(playlist.owner) : null,
         is_public: playlist.public
     }
 }

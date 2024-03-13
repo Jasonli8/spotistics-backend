@@ -9,6 +9,7 @@ When making any call to the other endpoints outside of authentication, cookies m
 3. The backend server should automatically refreshes the `access-token` cookie when it expires (`access-token` is only valid for 1 hour but a new one can be gotten using `refresh-token`), but if you need to need to do this manually, then you can use endpoint `/auth/refreshToken`. You must include `refresh-token` in the cookies. You will get back `{access-token, refresh-token}` if successful.
 
 ## Getting Content/Data
+To any endpoints outside of authentication, you must pass `access-token` and `refresh-token`.
 ### `/spotify/recommend`
 For getting a list of tracks recommended by spotify. Up to 10 tracks.
 - REQUIRES: `access-token` and `refresh-token` in cookies.

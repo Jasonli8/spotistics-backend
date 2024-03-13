@@ -1,5 +1,6 @@
 const request = require("request")
-const spotifyParser = require("@/helper/spotifyParser")
+const querystring = require("querystring")
+const spotifyParser = require("@utils/helper/spotifyParser")
 
 const getListeningHistory = async (req, res, next) => {
     var options = {
@@ -95,7 +96,7 @@ const searchSpotify = async (req, res, next) => {
         }
     }
     if (genre) {
-        query = query + `g enre:${genre}`
+        query = query + ` genre:${genre}`
     }
     if (isUnpopular) {
         query = query + ` tag:hipster`
@@ -121,11 +122,16 @@ const searchSpotify = async (req, res, next) => {
 
     request.get(options, (error, response, body) => {
         if (!error && response.statusCode == 200) {
-			var results = JSON.parse(body).items.map(item => spotifyParser(item))
-
-            res.status(200).send({ results, items: results.length })
-
-		} else {
+            const parsedData = JSON.parse(body)
+            var results = {}
+            for (const content in parsedData) {
+                contentResults = parsedData[content].items.map(item => spotifyParser.itemParser(item))
+                results[content] = { results: contentResults, items: contentResults.length }
+            }
+            res.status(200).send(results)
+        } else {
+            console.log(response.statusCode)
+            console.log(body)
 			res.status(500).send({message: "Couldn't get search results", code: 204, error: error})
 		}
     })

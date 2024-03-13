@@ -1,11 +1,12 @@
 require('module-alias/register')
 
+const cors = require('cors')
+const cookieParser = require('cookie-parser')
+const bodyParser = require('body-parser')
+
 const express = require('express')
 const server = express()
 const port = 3000
-
-const cors = require('cors')
-const cookieParser = require('cookie-parser')
 
 ///////////////////////////////////////////////////////////// ROUTER IMPORTS
 
@@ -14,6 +15,10 @@ const spotRouter = require("@router/spotify/spotifyRouter")
 const testRouter = require("@router/test/testRouter")
 
 ///////////////////////////////////////////////////////////// ROUTING
+
+server.use(bodyParser.json())
+server.use(cookieParser())
+server.use(cors());
 
 server.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -25,15 +30,8 @@ server.use((req, res, next) => {
   next();
 });
 
-server.use(cookieParser())
-      .use(cors());
-
 server.use("/auth", authRouter)
 server.use("/spotify", spotRouter)
-
-server.get('/', (req, res) => { // debug
-  res.send('Hello World!')
-})
 
 ///////////////////////////////////////////////////////////// ERROR RESPONSE HANDLING
 

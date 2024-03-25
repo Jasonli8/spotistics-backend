@@ -3,8 +3,8 @@ var crypto = require('crypto');
 var querystring = require('querystring');
 
 // reference: https://developer.spotify.com/documentation/web-api/tutorials/code-flow
-var client_id = '99c4249a81b040bfac0b3146288a64b7';
-var client_secret = '2c0eb3dc48b04c6e9dabb9ef04df9866';
+var client_id = process.env.SPOTIFY_CLIENT_ID;
+var client_secret = process.env.SPOTIFY_CLIENT_SECRET;
 var redirect_uri = 'http://localhost:3000/auth/loginCallback';
 var scope = [
 	// may add playlist and other scopes later: https://developer.spotify.com/documentation/web-api/concepts/scopes

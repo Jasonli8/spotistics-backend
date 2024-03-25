@@ -1,4 +1,6 @@
 require('module-alias/register')
+const env = require('dotenv')
+env.config()
 
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
@@ -6,7 +8,7 @@ const bodyParser = require('body-parser')
 
 const express = require('express')
 const server = express()
-const port = 3000
+const port = process.env.PORT
 
 ///////////////////////////////////////////////////////////// ROUTER IMPORTS
 

@@ -1,5 +1,7 @@
 # spotistics-backend
 
+Main branch of this project deployed on server at address `3.144.186.12:3000`.
+
 ## Authentication
 When making any call to the other endpoints outside of authentication, cookies must contain entries `access-token` and `refresh-token`.
 1. Authorize user through Spotify's OAuth. For Spotistics, this is done directly on the frontend to receive a code. If done directly through backend, then URL to navigate to authorization page can be gotten from endpoint `/auth/loginPageURL`. This endpoint REQUIRES query parameter `redirect` which takes a URL stub to redirect to after authentication is finished with the code in the URL's query parameter. For example, with endpoint `/auth/loginPageURL?redirect=http://localhost:3001/example?`, after authenticating through Spotify, users will return to `http://localhost:3001/example?code=1234`. Use `code` in the URL in the next step.

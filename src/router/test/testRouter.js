@@ -1,7 +1,7 @@
 const express = require("express")
 const router = express.Router()
 
-const authenticator = require("@utils/service/auth")
+const authenticator = require("@utils/endpoints/auth")
 
 router.get("/test", async (req, res, next) => {
     res.redirect("http://localhost:3000/test/testCallback")

@@ -38,7 +38,10 @@ server.use("/spotify", spotRouter)
 ///////////////////////////////////////////////////////////// ERROR RESPONSE HANDLING
 
 server.use((error, req, res, next) => {
-  res.status(error.code || 500).json({message: error.message || "An unknown error occured" })
+  if (res.headerSent) {
+    return next(error)
+  }
+  res.status(error.httpCode || 500).json({ message: error.message || "An unknown error occured", code: error.internalCode || 0 })
 })
 
 ///////////////////////////////////////////////////////////// SERVER START
